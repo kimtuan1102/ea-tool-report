@@ -3,6 +3,7 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CopyToolReport } from './interfaces/copy-tool-report.interface';
+import { UpdateInitialBalanceDto } from './dto/update-initial-balance.dto';
 
 @Injectable()
 export class CopyService {
@@ -30,5 +31,19 @@ export class CopyService {
   }
   async getAllReport() {
     return await this.copyToolReportModel.find();
+  }
+  async updateInitialBalance(updateInitialBalanceDto: UpdateInitialBalanceDto) {
+    return await this.copyToolReportModel.findOneAndUpdate(
+      { accountId: updateInitialBalanceDto.accountId },
+      updateInitialBalanceDto,
+      { upsert: true, new: true },
+    );
+  }
+  async resetReportData() {
+    return await this.copyToolReportModel.updateMany(
+      {},
+      { selfOrder: 0, botOrder: 0, currentBalance: 0 },
+      { new: true },
+    );
   }
 }

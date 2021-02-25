@@ -31,5 +31,5 @@ export class UpdateReportDto {
     maxLength: 1024,
   })
   @IsNotEmpty()
-  readonly currentBalance: string;
+  readonly currentBalance: number;
 }

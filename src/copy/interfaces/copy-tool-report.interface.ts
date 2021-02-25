@@ -4,5 +4,6 @@ export interface CopyToolReport extends Document {
   accountId: string;
   selfOrder: number;
   botOrder: number;
-  currentBalance: string;
+  currentBalance: number;
+  initialBalance: number;
 }

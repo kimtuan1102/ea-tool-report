@@ -9,6 +9,7 @@ import {
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CopyService } from './copy.service';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { UpdateInitialBalanceDto } from './dto/update-initial-balance.dto';
 
 @ApiTags('Copy')
 @Controller('copy')
@@ -28,5 +29,19 @@ export class CopyController {
   @ApiOkResponse()
   async getAllReport() {
     return await this.copyService.getAllReport();
+  }
+  @Post('update-initial-balance')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ description: 'Update initial balance' })
+  async updateInitialBalance(
+    @Body() updateInitialBalanceDto: UpdateInitialBalanceDto,
+  ) {
+    return await this.copyService.updateInitialBalance(updateInitialBalanceDto);
+  }
+  @Post('reset-report-data')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ description: 'Insert initial balance' })
+  async resetReportData() {
+    return await this.copyService.resetReportData();
   }
 }

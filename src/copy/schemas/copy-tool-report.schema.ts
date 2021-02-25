@@ -15,8 +15,13 @@ export const CopyToolReportSchema = new mongoose.Schema(
       required: [true, 'Bot order is blank'],
     },
     currentBalance: {
-      type: String,
+      type: Number,
       required: [true, 'Current Balance is blank'],
+    },
+    initialBalance: {
+      type: Number,
+      required: [true, 'Initial Balance is blank'],
+      default: 0,
     },
   },
   {
