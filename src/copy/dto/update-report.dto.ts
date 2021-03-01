@@ -1,5 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { IsNotEmpty } from 'class-validator';
 
 export class UpdateReportDto {
   @ApiModelProperty({
@@ -13,23 +13,25 @@ export class UpdateReportDto {
 
   @ApiModelProperty({
     example: 10,
-    description: 'The number of self order',
+    description: 'Initial balance',
   })
-  public selfOrder: number;
+  readonly initialBalance: number;
 
   @ApiModelProperty({
     example: 10,
-    description: 'The number of bot order',
+    description: 'Deposit',
   })
-  public botOrder: number;
+  readonly deposit: number;
 
   @ApiModelProperty({
-    example: '9000.2',
-    description: 'The current balance of account',
-    format: 'string',
-    minLength: 5,
-    maxLength: 1024,
+    example: 10,
+    description: 'Withdraw',
   })
-  @IsNotEmpty()
-  readonly currentBalance: number;
+  readonly withdraw: number;
+
+  @ApiModelProperty({
+    example: 'Telegram account',
+    description: 'Telegram Account',
+  })
+  readonly telegram: string;
 }

@@ -5,6 +5,7 @@ import appConfig from './config/app.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './config/mongo.config';
 import { CopyModule } from './copy/copy.module';
+import { ReportExcelsModule } from './report-excels/report-excels.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -22,6 +23,7 @@ const ENV = process.env.NODE_ENV;
       useClass: MongooseConfigService,
     }),
     CopyModule,
+    ReportExcelsModule,
   ],
 })
 export class AppModule {}

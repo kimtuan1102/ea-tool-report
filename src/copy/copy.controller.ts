@@ -2,14 +2,16 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Post,
+  Res,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CopyService } from './copy.service';
+import { PushReportDto } from './dto/push-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
-import { UpdateInitialBalanceDto } from './dto/update-initial-balance.dto';
 
 @ApiTags('Copy')
 @Controller('copy')
@@ -20,8 +22,8 @@ export class CopyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Update Report' })
   @ApiOkResponse()
-  async updateReport(@Body() updateReportDto: UpdateReportDto) {
-    return await this.copyService.updateReport(updateReportDto);
+  async pushReport(@Body() pushReportDto: PushReportDto) {
+    return await this.copyService.pushReport(pushReportDto);
   }
   @Get('reports')
   @HttpCode(HttpStatus.OK)
@@ -30,18 +32,33 @@ export class CopyController {
   async getAllReport() {
     return await this.copyService.getAllReport();
   }
-  @Post('update-initial-balance')
+  @Post('update-report-fields')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ description: 'Update initial balance' })
-  async updateInitialBalance(
-    @Body() updateInitialBalanceDto: UpdateInitialBalanceDto,
-  ) {
-    return await this.copyService.updateInitialBalance(updateInitialBalanceDto);
+  @ApiOperation({ description: 'Update report' })
+  async updateInitialBalance(@Body() updateReportDto: UpdateReportDto) {
+    return await this.copyService.updateReport(updateReportDto);
   }
   @Post('reset-report-data')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Insert initial balance' })
   async resetReportData() {
     return await this.copyService.resetReportData();
+  }
+  @Get('excels-report-data')
+  @HttpCode(HttpStatus.OK)
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header(
+    'Content-Disposition',
+    'attachment; filename=' + 'SFX Copy Tool Report.xlsx',
+  )
+  @ApiOperation({ description: 'Report excels' })
+  async excelsReportData(@Res() res) {
+    const workbook = await this.copyService.excelsReportData();
+    workbook.xlsx.write(res).then(() => {
+      return res.end();
+    });
   }
 }
