@@ -46,7 +46,7 @@ export class ReportExcelsService {
         } else if (balance0 >= 20000 && balance1 > balance0) {
           doLa = (balance1 - balance0 - 200) * 0.15;
         }
-        item.$ = doLa;
+        item.$ = Math.ceil(doLa);
         item.percent = Math.ceil(
           (item['currentBalance'] / item['initialBalance']) * 100 - 100,
         );
