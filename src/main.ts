@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CopyModule } from './copy/copy.module';
+import { UserModule } from './user/user.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,7 +17,7 @@ async function bootstrap() {
     .addTag('API')
     .build();
   const document = SwaggerModule.createDocument(app, options, {
-    include: [CopyModule],
+    include: [CopyModule, UserModule],
   });
   SwaggerModule.setup('api/swagger', app, document);
   const configService = app.get(ConfigService);

@@ -6,15 +6,18 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Res,
+  Res, UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CopyService } from './copy.service';
 import { PushReportDto } from './dto/push-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Copy')
 @Controller('copy')
+@ApiBearerAuth()
 export class CopyController {
   constructor(private readonly copyService: CopyService) {}
 
@@ -26,6 +29,7 @@ export class CopyController {
     return await this.copyService.pushReport(pushReportDto);
   }
   @Get('reports')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Get All Report' })
   @ApiOkResponse()
@@ -33,12 +37,15 @@ export class CopyController {
     return await this.copyService.getAllReport();
   }
   @Post('update-report-fields')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Update report' })
   async updateInitialBalance(@Body() updateReportDto: UpdateReportDto) {
     return await this.copyService.updateReport(updateReportDto);
   }
   @Post('reset-report-data')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Insert initial balance' })
   async resetReportData() {

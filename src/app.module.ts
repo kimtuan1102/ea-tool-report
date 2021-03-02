@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './config/mongo.config';
 import { CopyModule } from './copy/copy.module';
 import { ReportExcelsModule } from './report-excels/report-excels.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 const ENV = process.env.NODE_ENV;
 @Module({
@@ -23,6 +25,8 @@ const ENV = process.env.NODE_ENV;
       useClass: MongooseConfigService,
     }),
     CopyModule,
+    AuthModule,
+    UserModule,
     ReportExcelsModule,
   ],
 })
