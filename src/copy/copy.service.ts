@@ -56,7 +56,6 @@ export class CopyService {
     const options = this.buildQueryOptions(query);
     const queryRp = this.buildQueryReport(query);
     const reportData = await this.copyToolReportModel.find(queryRp, options);
-    console.log(reportData)
     return await this.reportExcelsService.eaToolReport(reportData);
   }
   // ***************************************************************************
