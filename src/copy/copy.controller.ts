@@ -5,15 +5,23 @@ import {
   Header,
   HttpCode,
   HttpStatus,
-  Post,
-  Res, UseGuards,
+  Post, Query,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CopyService } from './copy.service';
 import { PushReportDto } from './dto/push-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { ReportQueryDto } from './dto/report-query.dto';
+import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
 
 @ApiTags('Copy')
 @Controller('copy')
@@ -33,8 +41,8 @@ export class CopyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Get All Report' })
   @ApiOkResponse()
-  async getAllReport() {
-    return await this.copyService.getAllReport();
+  async getAllReport(@Query() query: ReportQueryDto) {
+    return await this.copyService.getAllReport(query);
   }
   @Post('update-report-fields')
   @UseGuards(AuthGuard('jwt'))
@@ -62,8 +70,8 @@ export class CopyController {
     'attachment; filename=' + 'SFX Copy Tool Report.xlsx',
   )
   @ApiOperation({ description: 'Report excels' })
-  async excelsReportData(@Res() res) {
-    const workbook = await this.copyService.excelsReportData();
+  async excelsReportData(@Res() res, @Query() query: ReportQueryDto) {
+    const workbook = await this.copyService.excelsReportData(query);
     workbook.xlsx.write(res).then(() => {
       return res.end();
     });
