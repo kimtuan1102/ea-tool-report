@@ -1,4 +1,4 @@
 export interface ReportQuery {
   accountId?: any;
-  telegram?: any;
+  zalo?: any;
 }

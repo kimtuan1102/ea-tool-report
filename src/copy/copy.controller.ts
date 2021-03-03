@@ -47,7 +47,7 @@ export class CopyController {
   @Post('update-report-fields')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ description: 'Update report' })
+  @ApiOperation({ description: 'Update report field' })
   async updateInitialBalance(@Body() updateReportDto: UpdateReportDto) {
     return await this.copyService.updateReport(updateReportDto);
   }

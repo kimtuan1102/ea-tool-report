@@ -30,8 +30,13 @@ export class UpdateReportDto {
   readonly withdraw: number;
 
   @ApiModelProperty({
-    example: 'Telegram account',
-    description: 'Telegram Account',
+    example: 'Zalo account',
+    description: 'Zalo Account',
   })
-  readonly telegram: string;
+  readonly zalo: string;
+
+  @ApiModelProperty({
+    description: 'expireDate',
+  })
+  readonly expireDate: Date;
 }

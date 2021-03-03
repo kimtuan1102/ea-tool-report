@@ -6,7 +6,10 @@ export interface CopyToolReport extends Document {
   botOrder: number;
   currentBalance: number;
   initialBalance: number;
+  percent: number;
+  dollar: number;
   deposit: number;
   withdraw: number;
-  telegram: string;
+  zalo: string;
+  expireDate: Date;
 }

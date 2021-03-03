@@ -9,7 +9,7 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 
 export class LoginUserDto {
   @ApiModelProperty({
-    example: 'example@gmail.com',
+    example: 'kimtuan1102@gmail.com',
     description: 'The email of the User',
     format: 'email',
     uniqueItems: true,
@@ -24,7 +24,7 @@ export class LoginUserDto {
   readonly email: string;
 
   @ApiModelProperty({
-    example: 'secret password change me!',
+    example: 'Matkhau1@',
     description: 'The password of the User',
     format: 'string',
     minLength: 5,

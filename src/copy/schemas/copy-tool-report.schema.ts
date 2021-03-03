@@ -23,6 +23,16 @@ export const CopyToolReportSchema = new mongoose.Schema(
       required: [true, 'Initial Balance is blank'],
       default: 0,
     },
+    dollar: {
+      type: Number,
+      required: [true, 'Dollar is blank'],
+      default: 0,
+    },
+    percent: {
+      type: Number,
+      required: [true, 'Percent is blank'],
+      default: 0,
+    },
     deposit: {
       type: Number,
       required: [true, 'Deposit is blank'],
@@ -33,10 +43,15 @@ export const CopyToolReportSchema = new mongoose.Schema(
       required: [true, 'Withdraw is blank'],
       default: 0,
     },
-    telegram: {
+    zalo: {
       type: String,
-      required: [true, 'Telegram is blank'],
+      required: [true, 'Zalo is blank'],
       default: '',
+    },
+    expireDate: {
+      type: Date,
+      required: [true, 'Expire date is blank'],
+      default: null,
     },
   },
   {

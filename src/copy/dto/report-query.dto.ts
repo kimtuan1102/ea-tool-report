@@ -6,5 +6,5 @@ export class ReportQueryDto extends OptionsQueryDto {
   readonly accountId?: string;
 
   @ApiProperty({ required: false })
-  readonly telegram?: string;
+  readonly zalo?: string;
 }

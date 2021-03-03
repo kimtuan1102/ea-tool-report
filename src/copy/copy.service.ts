@@ -9,6 +9,8 @@ import { ReportQueryDto } from './dto/report-query.dto';
 import { OptionsQueryDto } from '../common/dto/options-query.dto';
 import { OptionsQuery } from '../common/interfaces/options.query';
 import { ReportQuery } from './interfaces/report-query.interface';
+import { PushReportPayload } from './interfaces/push-report.interface';
+import { UpdateFieldReportPayload } from './interfaces/update-field-report.interface';
 
 @Injectable()
 export class CopyService {
@@ -17,17 +19,28 @@ export class CopyService {
     private readonly copyToolReportModel: Model<CopyToolReport>,
     private readonly reportExcelsService: ReportExcelsService,
   ) {}
-  async pushReport(pushReportDto: PushReportDto): Promise<CopyToolReport> {
+  async pushReport(
+    pushReportPayload: PushReportPayload,
+  ): Promise<CopyToolReport> {
     const report = await this.copyToolReportModel.findOne({
-      accountId: pushReportDto.accountId,
+      accountId: pushReportPayload.accountId,
     });
     if (report) {
-      pushReportDto.botOrder = report.botOrder + pushReportDto.botOrder;
-      pushReportDto.selfOrder = report.selfOrder + pushReportDto.selfOrder;
+      pushReportPayload.botOrder = report.botOrder + pushReportPayload.botOrder;
+      pushReportPayload.selfOrder =
+        report.selfOrder + pushReportPayload.selfOrder;
+      pushReportPayload.dollar = this.calcDollar(
+        report.initialBalance,
+        pushReportPayload.currentBalance,
+      );
+      pushReportPayload.percent = this.calcPercent(
+        report.initialBalance,
+        pushReportPayload.currentBalance,
+      );
     }
     return await this.copyToolReportModel.findOneAndUpdate(
-      { accountId: pushReportDto.accountId },
-      pushReportDto,
+      { accountId: pushReportPayload.accountId },
+      pushReportPayload,
       {
         upsert: true,
       },
@@ -38,10 +51,23 @@ export class CopyService {
     const queryRp = this.buildQueryReport(query);
     return await this.copyToolReportModel.find(queryRp, options);
   }
-  async updateReport(updateReportDto: UpdateReportDto) {
+  async updateReport(updateReportPayload: UpdateFieldReportPayload) {
+    const report = await this.copyToolReportModel.findOne({
+      accountId: updateReportPayload.accountId,
+    });
+    if (report) {
+      updateReportPayload.dollar = this.calcDollar(
+        updateReportPayload.initialBalance,
+        report.currentBalance,
+      );
+      updateReportPayload.percent = this.calcPercent(
+        updateReportPayload.initialBalance,
+        report.currentBalance,
+      );
+    }
     return await this.copyToolReportModel.findOneAndUpdate(
-      { accountId: updateReportDto.accountId },
-      updateReportDto,
+      { accountId: updateReportPayload.accountId },
+      updateReportPayload,
       { upsert: true, new: true },
     );
   }
@@ -80,11 +106,27 @@ export class CopyService {
       const regexAccountId = new RegExp(`.*${query.accountId}.*`, 'i');
       Object.assign(queryRp, { accountId: regexAccountId });
     }
-    if (query.telegram) {
-      const regexTelegram = new RegExp(`.*${query.telegram}.*`, 'i');
-      Object.assign(queryRp, { telegram: regexTelegram });
+    if (query.zalo) {
+      const regexTelegram = new RegExp(`.*${query.zalo}.*`, 'i');
+      Object.assign(queryRp, { zalo: regexTelegram });
     }
 
     return queryRp;
+  }
+  private calcDollar(balance0: number, balance1: number) {
+    let dollar = 0;
+    if (balance0 < 7000 && balance1 > balance0) {
+      dollar = (balance1 - balance0 - 50) * 0.15;
+    } else if (balance0 >= 7000 && balance0 < 10000 && balance1 > balance0) {
+      dollar = (balance1 - balance0 - 100) * 0.15;
+    } else if (balance0 >= 10000 && balance0 < 20000 && balance1 > balance0) {
+      dollar = (balance1 - balance0 - 150) * 0.15;
+    } else if (balance0 >= 20000 && balance1 > balance0) {
+      dollar = (balance1 - balance0 - 200) * 0.15;
+    }
+    return Math.ceil(dollar);
+  }
+  private calcPercent(balance0: number, balance1: number) {
+    return Math.ceil((balance1 / balance0) * 100 - 100);
   }
 }

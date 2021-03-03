@@ -18,7 +18,7 @@ export class ReportExcelsService {
       { header: '$', key: '$', width: 15 },
       { header: 'Bot', key: 'botOrder', width: 15 },
       { header: 'Tự đánh', key: 'selfOrder', width: 15 },
-      { header: 'Telegram', key: 'telegram', width: 20 },
+      { header: 'Zalo', key: 'zalo', width: 20 },
       { header: 'Deposit', key: 'deposit', width: 15 },
       { header: 'Withdraw', key: 'withdraw', width: 15 },
     ];
@@ -46,7 +46,7 @@ export class ReportExcelsService {
         } else if (balance0 >= 20000 && balance1 > balance0) {
           doLa = (balance1 - balance0 - 200) * 0.15;
         }
-        item.$ = Math.ceil(doLa);
+        item.dollar = Math.ceil(doLa);
         item.percent = Math.ceil(
           (item['currentBalance'] / item['initialBalance']) * 100 - 100,
         );
