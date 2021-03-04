@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PushReportDto } from './dto/push-report.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,13 +11,20 @@ import { OptionsQuery } from '../common/interfaces/options.query';
 import { ReportQuery } from './interfaces/report-query.interface';
 import { PushReportPayload } from './interfaces/push-report.interface';
 import { UpdateFieldReportPayload } from './interfaces/update-field-report.interface';
-
+import { FilterType } from './enums/filter-type.enum';
+import moment from 'moment';
+import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
+import * as format from 'string-format';
+import { TelegramService } from '../telegram/telegram.service';
+import { returnStatement } from '@babel/types';
 @Injectable()
 export class CopyService {
+  protected logger = new Logger(CopyService.name);
   constructor(
     @InjectModel('CopyToolReport')
     private readonly copyToolReportModel: Model<CopyToolReport>,
     private readonly reportExcelsService: ReportExcelsService,
+    private readonly telegramService: TelegramService,
   ) {}
   async pushReport(
     pushReportPayload: PushReportPayload,
@@ -46,10 +53,8 @@ export class CopyService {
       },
     );
   }
-  async getAllReport(query: ReportQueryDto): Promise<CopyToolReport[]> {
-    const options = this.buildQueryOptions(query);
-    const queryRp = this.buildQueryReport(query);
-    return await this.copyToolReportModel.find(queryRp, options);
+  async getAllReport(query: FilterType): Promise<CopyToolReport[]> {
+    return await this.getReportsByFilterType(query);
   }
   async updateReport(updateReportPayload: UpdateFieldReportPayload) {
     const report = await this.copyToolReportModel.findOne({
@@ -78,11 +83,31 @@ export class CopyService {
       { new: true },
     );
   }
-  async excelsReportData(query: ReportQueryDto) {
-    const options = this.buildQueryOptions(query);
-    const queryRp = this.buildQueryReport(query);
-    const reportData = await this.copyToolReportModel.find(queryRp, options);
+  async excelsReportData(query: FilterType) {
+    const reportData = await this.getReportsByFilterType(query);
     return await this.reportExcelsService.eaToolReport(reportData);
+  }
+
+  async deleteReportByAccountId(accountId: string) {
+    return await this.copyToolReportModel.findOneAndDelete({ accountId });
+  }
+
+  async sendMessageToTelegram(
+    filterType: FilterType,
+    sendMessageTelegramDto: SendMessageTelegramDto,
+  ) {
+    const reportData = await this.getReportsByFilterType(filterType);
+    for (const _report of reportData) {
+      if (_report.telegram && _report.telegram !== '') {
+        const message = format(sendMessageTelegramDto.message, _report);
+        this.telegramService
+          .sendMessage(_report.telegram, message)
+          .catch((e) => {
+            this.logger.error(`Send Message Failed with error${e}`);
+          });
+      }
+    }
+    return 'Success';
   }
   // ***************************************************************************
   //                                 PRIVATE METHOD
@@ -128,5 +153,23 @@ export class CopyService {
   }
   private calcPercent(balance0: number, balance1: number) {
     return Math.ceil((balance1 / balance0) * 100 - 100);
+  }
+  private async getReportsByFilterType(
+    filterType: FilterType,
+  ): Promise<CopyToolReport[]> {
+    switch (filterType) {
+      case FilterType.ExpireLessThanSevenDay:
+        return await this.copyToolReportModel.find({
+          expireDate: { $gt: moment().add(7, 'd').toDate() },
+        });
+      case FilterType.SelfOrderOneTime:
+        return await this.copyToolReportModel.find({ selfOrder: 1 });
+      case FilterType.SelfOrderTwoTime:
+        return await this.copyToolReportModel.find({ selfOrder: 2 });
+      case FilterType.SelfOrderMoreThanTwoTime:
+        return await this.copyToolReportModel.find({ selfOrder: { $gte: 3 } });
+      default:
+        return await this.copyToolReportModel.find();
+    }
   }
 }

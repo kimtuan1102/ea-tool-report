@@ -43,15 +43,20 @@ export const CopyToolReportSchema = new mongoose.Schema(
       required: [true, 'Withdraw is blank'],
       default: 0,
     },
-    zalo: {
+    telegram: {
       type: String,
-      required: [true, 'Zalo is blank'],
+      required: [true, 'Telegram is blank'],
       default: '',
     },
     expireDate: {
       type: Date,
       required: [true, 'Expire date is blank'],
       default: null,
+    },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is blank'],
+      default: '',
     },
   },
   {

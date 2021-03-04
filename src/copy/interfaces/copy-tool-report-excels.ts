@@ -8,6 +8,7 @@ export interface CopyToolReportExcels {
   initialBalance: number;
   deposit: number;
   withdraw: number;
-  zalo: string;
+  telegram: string;
   expireDate: Date;
+  phone: string;
 }

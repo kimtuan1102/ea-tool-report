@@ -10,6 +10,7 @@ export interface CopyToolReport extends Document {
   dollar: number;
   deposit: number;
   withdraw: number;
-  zalo: string;
+  telegram: string;
   expireDate: Date;
+  phone: string;
 }

@@ -5,5 +5,6 @@ export interface UpdateFieldReportPayload {
   withdraw: number;
   percent?: number;
   dollar?: number;
-  zalo: string;
+  telegram: string;
+  phone: string;
 }

@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpCode,
   HttpStatus,
-  Post, Query,
+  Param,
+  Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +16,8 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { CopyService } from './copy.service';
@@ -22,6 +27,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ReportQueryDto } from './dto/report-query.dto';
 import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
+import { FilterType } from './enums/filter-type.enum';
+import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
 
 @ApiTags('Copy')
 @Controller('copy')
@@ -41,7 +48,8 @@ export class CopyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Get All Report' })
   @ApiOkResponse()
-  async getAllReport(@Query() query: ReportQueryDto) {
+  @ApiQuery({ name: 'filterType', enum: FilterType, required: false })
+  async getAllReport(@Query() query: FilterType) {
     return await this.copyService.getAllReport(query);
   }
   @Post('update-report-fields')
@@ -70,10 +78,34 @@ export class CopyController {
     'attachment; filename=' + 'SFX Copy Tool Report.xlsx',
   )
   @ApiOperation({ description: 'Report excels' })
-  async excelsReportData(@Res() res, @Query() query: ReportQueryDto) {
+  @ApiOkResponse()
+  @ApiQuery({ name: 'filterType', enum: FilterType, required: false })
+  async excelsReportData(@Res() res, @Query() query: FilterType) {
     const workbook = await this.copyService.excelsReportData(query);
     workbook.xlsx.write(res).then(() => {
       return res.end();
     });
+  }
+  @Delete('delete-report/:accountId')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ description: 'Delete report' })
+  @ApiParam({ name: 'accountId', required: true, type: String })
+  async deleteReport(@Param('accountId') accountId: string) {
+    return this.copyService.deleteReportByAccountId(accountId);
+  }
+  @Post('send-message-telegram')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ description: 'Send message to telegram' })
+  @ApiQuery({ name: 'filterType', enum: FilterType, required: false })
+  async sendMessageToTelegram(
+    @Query() query: FilterType,
+    @Body() sendMessageTelegramDto: SendMessageTelegramDto,
+  ) {
+    return await this.copyService.sendMessageToTelegram(
+      query,
+      sendMessageTelegramDto,
+    );
   }
 }

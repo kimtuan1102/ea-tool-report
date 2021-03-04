@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CopyModule } from './copy/copy.module';
 import { UserModule } from './user/user.module';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();

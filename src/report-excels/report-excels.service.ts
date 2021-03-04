@@ -18,43 +18,14 @@ export class ReportExcelsService {
       { header: '$', key: '$', width: 15 },
       { header: 'Bot', key: 'botOrder', width: 15 },
       { header: 'Tự đánh', key: 'selfOrder', width: 15 },
-      { header: 'Zalo', key: 'zalo', width: 20 },
+      { header: 'Telegram', key: 'telegram', width: 20 },
       { header: 'Deposit', key: 'deposit', width: 15 },
       { header: 'Withdraw', key: 'withdraw', width: 15 },
+      { header: 'Phone', key: 'phone', width: 15 },
     ];
     worksheet.columns = headers as Column[];
-    //Transform Data
-    const eaToolReportExcels = eaToolReportData.map(
-      (item: CopyToolReportExcels) => {
-        const balance0 = item.initialBalance;
-        const balance1 = item.currentBalance;
-        let doLa = 0;
-        if (balance0 < 7000 && balance1 > balance0) {
-          doLa = (balance1 - balance0 - 50) * 0.15;
-        } else if (
-          balance0 >= 7000 &&
-          balance0 < 10000 &&
-          balance1 > balance0
-        ) {
-          doLa = (balance1 - balance0 - 100) * 0.15;
-        } else if (
-          balance0 >= 10000 &&
-          balance0 < 20000 &&
-          balance1 > balance0
-        ) {
-          doLa = (balance1 - balance0 - 150) * 0.15;
-        } else if (balance0 >= 20000 && balance1 > balance0) {
-          doLa = (balance1 - balance0 - 200) * 0.15;
-        }
-        item.dollar = Math.ceil(doLa);
-        item.percent = Math.ceil(
-          (item['currentBalance'] / item['initialBalance']) * 100 - 100,
-        );
-        return item;
-      },
-    );
     //Add data
-    worksheet.addRows(eaToolReportExcels);
+    worksheet.addRows(eaToolReportData);
     //Style excels
     worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
       row.eachCell(function (cell, colNumber) {
