@@ -5,9 +5,7 @@ import { CopyToolReportExcels } from '../copy/interfaces/copy-tool-report-excels
 
 @Injectable()
 export class ReportExcelsService {
-  async eaToolReport(
-    eaToolReportData: CopyToolReportExcels[],
-  ): Promise<Workbook> {
+  async eaToolReport(eaToolReportData: CopyToolReport[]): Promise<Workbook> {
     const workbook = this.buildExcelWorkBook();
     const worksheet = workbook.addWorksheet('Copy Tool Report');
     const headers = [
@@ -22,10 +20,11 @@ export class ReportExcelsService {
       { header: 'Deposit', key: 'deposit', width: 15 },
       { header: 'Withdraw', key: 'withdraw', width: 15 },
       { header: 'Phone', key: 'phone', width: 15 },
+      { header: 'Hết hạn', key: 'expireDateFormat', width: 15 },
     ];
     worksheet.columns = headers as Column[];
     //Add data
-    worksheet.addRows(eaToolReportData);
+    worksheet.addRows(JSON.parse(JSON.stringify(eaToolReportData)));
     //Style excels
     worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
       row.eachCell(function (cell, colNumber) {

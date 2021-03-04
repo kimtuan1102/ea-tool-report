@@ -99,9 +99,6 @@ export class CopyService {
     const reportData = await this.getReportsByFilterType(filterType);
     for (const _report of reportData) {
       if (_report.telegram && _report.telegram !== '') {
-        _report.expireDateFormat = moment(_report.expireDate).format(
-          'DD/MM/YYYY',
-        );
         const message = format(sendMessageTelegramDto.message, _report);
         this.telegramService
           .sendMessage(_report.telegram, message)
@@ -160,21 +157,37 @@ export class CopyService {
   private async getReportsByFilterType(
     filterType: FilterType,
   ): Promise<CopyToolReport[]> {
+    let reportsData = [];
     switch (filterType['filterType']) {
       case FilterType.ExpireLessThanSevenDay:
-        return await this.copyToolReportModel.find({
+        reportsData = await this.copyToolReportModel.find({
           expireDate: { $lt: moment().add(7, 'd').toDate() },
         });
+        break;
       case FilterType.SelfOrderOneTime:
-        return await this.copyToolReportModel.find({ selfOrder: 1 });
+        reportsData = await this.copyToolReportModel.find({ selfOrder: 1 });
+        break;
       case FilterType.SelfOrderTwoTime:
-        return await this.copyToolReportModel.find({ selfOrder: 2 });
+        reportsData = await this.copyToolReportModel.find({ selfOrder: 2 });
+        break;
       case FilterType.SelfOrderMoreThanTwoTime:
-        return await this.copyToolReportModel.find({ selfOrder: { $gte: 3 } });
+        reportsData = await this.copyToolReportModel.find({
+          selfOrder: { $gte: 3 },
+        });
+        break;
       case FilterType.All:
-        return await this.copyToolReportModel.find();
+        reportsData = await this.copyToolReportModel.find();
+        break;
       default:
-        return await this.copyToolReportModel.find();
+        reportsData = await this.copyToolReportModel.find();
+        break;
     }
+    reportsData = reportsData.map((item) => {
+      item['_doc']['expireDateFormat'] = moment(item.expireDate).format(
+        'DD/MM/YYYY',
+      );
+      return item;
+    });
+    return reportsData;
   }
 }

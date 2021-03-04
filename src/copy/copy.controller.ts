@@ -29,6 +29,7 @@ import { ReportQueryDto } from './dto/report-query.dto';
 import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
 import { FilterType } from './enums/filter-type.enum';
 import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
+import { CopyToolReport } from './interfaces/copy-tool-report.interface';
 
 @ApiTags('Copy')
 @Controller('copy')
@@ -49,7 +50,7 @@ export class CopyController {
   @ApiOperation({ description: 'Get All Report' })
   @ApiOkResponse()
   @ApiQuery({ name: 'filterType', enum: FilterType, required: false })
-  async getAllReport(@Query() query: FilterType) {
+  async getAllReport(@Query() query: FilterType): Promise<CopyToolReport[]> {
     return await this.copyService.getAllReport(query);
   }
   @Post('update-report-fields')
