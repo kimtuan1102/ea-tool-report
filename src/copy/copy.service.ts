@@ -12,7 +12,7 @@ import { ReportQuery } from './interfaces/report-query.interface';
 import { PushReportPayload } from './interfaces/push-report.interface';
 import { UpdateFieldReportPayload } from './interfaces/update-field-report.interface';
 import { FilterType } from './enums/filter-type.enum';
-import moment from 'moment';
+import * as moment from 'moment';
 import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
 import * as format from 'string-format';
 import { TelegramService } from '../telegram/telegram.service';
@@ -160,7 +160,7 @@ export class CopyService {
     switch (filterType['filterType']) {
       case FilterType.ExpireLessThanSevenDay:
         return await this.copyToolReportModel.find({
-          expireDate: { $gt: moment().add(7, 'd').toDate() },
+          expireDate: { $lt: moment().add(7, 'd').toDate() },
         });
       case FilterType.SelfOrderOneTime:
         return await this.copyToolReportModel.find({ selfOrder: 1 });
@@ -168,6 +168,8 @@ export class CopyService {
         return await this.copyToolReportModel.find({ selfOrder: 2 });
       case FilterType.SelfOrderMoreThanTwoTime:
         return await this.copyToolReportModel.find({ selfOrder: { $gte: 3 } });
+      case FilterType.All:
+        return await this.copyToolReportModel.find();
       default:
         return await this.copyToolReportModel.find();
     }
