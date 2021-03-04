@@ -15,7 +15,7 @@ export class ReportExcelsService {
       { header: 'Balance 0', key: 'initialBalance', width: 15 },
       { header: 'Balance 1', key: 'currentBalance', width: 15 },
       { header: '%', key: 'percent', width: 15 },
-      { header: '$', key: '$', width: 15 },
+      { header: '$', key: 'dollar', width: 15 },
       { header: 'Bot', key: 'botOrder', width: 15 },
       { header: 'Tự đánh', key: 'selfOrder', width: 15 },
       { header: 'Telegram', key: 'telegram', width: 20 },
