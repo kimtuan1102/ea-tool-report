@@ -99,6 +99,9 @@ export class CopyService {
     const reportData = await this.getReportsByFilterType(filterType);
     for (const _report of reportData) {
       if (_report.telegram && _report.telegram !== '') {
+        _report.expireDateFormat = moment(_report.expireDate).format(
+          'DD/MM/YYYY',
+        );
         const message = format(sendMessageTelegramDto.message, _report);
         this.telegramService
           .sendMessage(_report.telegram, message)

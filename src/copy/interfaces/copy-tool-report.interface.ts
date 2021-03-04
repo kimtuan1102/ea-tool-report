@@ -13,4 +13,5 @@ export interface CopyToolReport extends Document {
   telegram: string;
   expireDate: Date;
   phone: string;
+  expireDateFormat?: string;
 }
