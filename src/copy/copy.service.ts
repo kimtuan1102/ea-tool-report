@@ -157,7 +157,7 @@ export class CopyService {
   private async getReportsByFilterType(
     filterType: FilterType,
   ): Promise<CopyToolReport[]> {
-    switch (filterType) {
+    switch (filterType['filterType']) {
       case FilterType.ExpireLessThanSevenDay:
         return await this.copyToolReportModel.find({
           expireDate: { $gt: moment().add(7, 'd').toDate() },
