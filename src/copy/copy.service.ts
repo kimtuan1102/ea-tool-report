@@ -187,6 +187,8 @@ export class CopyService {
     return Math.ceil(dollar);
   }
   private calcPercent(balance0: number, balance1: number) {
-    return Math.ceil((balance1 / balance0) * 100 - 100);
+    return Math.ceil((balance1 / balance0) * 100 - 100)
+      ? Math.ceil((balance1 / balance0) * 100 - 100)
+      : 0;
   }
 }
