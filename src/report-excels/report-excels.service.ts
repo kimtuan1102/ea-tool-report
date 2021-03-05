@@ -1,7 +1,6 @@
-import { Injectable, Res } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CopyToolReport } from '../copy/interfaces/copy-tool-report.interface';
-import { Workbook, Column, Alignment } from 'exceljs';
-import { CopyToolReportExcels } from '../copy/interfaces/copy-tool-report-excels';
+import { Workbook, Column } from 'exceljs';
 
 @Injectable()
 export class ReportExcelsService {
