@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CopyModule } from './copy/copy.module';
 import { UserModule } from './user/user.module';
+import { TelegramModule } from './telegram/telegram.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
@@ -16,7 +17,7 @@ async function bootstrap() {
     .addTag('API')
     .build();
   const document = SwaggerModule.createDocument(app, options, {
-    include: [CopyModule, UserModule],
+    include: [TelegramModule, CopyModule, UserModule],
   });
   SwaggerModule.setup('api/swagger', app, document);
   const configService = app.get(ConfigService);

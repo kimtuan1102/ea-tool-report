@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CopyToolReport } from './interfaces/copy-tool-report.interface';
@@ -14,6 +14,7 @@ import * as moment from 'moment';
 import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
 import * as format from 'string-format';
 import { TelegramService } from '../telegram/telegram.service';
+import { SyncTelegramAccountDto } from './dto/sync-telegram-account.dto';
 @Injectable()
 export class CopyService {
   protected logger = new Logger(CopyService.name);
@@ -21,6 +22,7 @@ export class CopyService {
     @InjectModel('CopyToolReport')
     private readonly copyToolReportModel: Model<CopyToolReport>,
     private readonly reportExcelsService: ReportExcelsService,
+    @Inject(forwardRef(() => TelegramService))
     private readonly telegramService: TelegramService,
   ) {}
   async pushReport(
@@ -121,6 +123,18 @@ export class CopyService {
       }
     }
     return 'Success';
+  }
+  async syncTelegramAccount(syncTelegramsDto: SyncTelegramAccountDto[]) {
+    const updatesQuery = [];
+    for (const telegramDto of syncTelegramsDto) {
+      updatesQuery.push({
+        updateOne: {
+          filter: { accountId: telegramDto.accountId },
+          update: { telegram: telegramDto.telegram },
+        },
+      });
+    }
+    return await this.copyToolReportModel.bulkWrite(updatesQuery);
   }
   // ***************************************************************************
   //                                 PRIVATE METHOD

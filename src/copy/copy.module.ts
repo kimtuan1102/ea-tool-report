@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CopyService } from './copy.service';
 import { CopyController } from './copy.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -12,9 +12,10 @@ import { TelegramModule } from '../telegram/telegram.module';
       { name: 'CopyToolReport', schema: CopyToolReportSchema },
     ]),
     ReportExcelsModule,
-    TelegramModule,
+    forwardRef(() => TelegramModule),
   ],
   providers: [CopyService],
   controllers: [CopyController],
+  exports: [CopyService],
 })
 export class CopyModule {}
