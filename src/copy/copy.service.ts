@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PushReportDto } from './dto/push-report.dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CopyToolReport } from './interfaces/copy-tool-report.interface';
-import { UpdateReportDto } from './dto/update-report.dto';
 import { ReportExcelsService } from '../report-excels/report-excels.service';
 import { ReportQueryDto } from './dto/report-query.dto';
 import { OptionsQueryDto } from '../common/dto/options-query.dto';
@@ -16,7 +14,6 @@ import * as moment from 'moment';
 import { SendMessageTelegramDto } from './dto/send-message-telegram.dto';
 import * as format from 'string-format';
 import { TelegramService } from '../telegram/telegram.service';
-import { returnStatement } from '@babel/types';
 @Injectable()
 export class CopyService {
   protected logger = new Logger(CopyService.name);
@@ -53,8 +50,20 @@ export class CopyService {
       },
     );
   }
-  async getAllReport(query: FilterType): Promise<CopyToolReport[]> {
-    return await this.getReportsByFilterType(query);
+  async filterReport(
+    filterType: FilterType,
+    reportQueryDto: ReportQueryDto,
+  ): Promise<CopyToolReport[]> {
+    const query = this.buildQueryReport(filterType, reportQueryDto);
+    const options = this.buildQueryOptions(reportQueryDto);
+    let reportsData = await this.copyToolReportModel.find(query, options);
+    reportsData = reportsData.map((item) => {
+      item['_doc']['expireDateFormat'] = moment(item.expireDate).format(
+        'DD/MM/YYYY',
+      );
+      return item;
+    });
+    return reportsData;
   }
   async updateReport(updateReportPayload: UpdateFieldReportPayload) {
     const report = await this.copyToolReportModel.findOne({
@@ -83,8 +92,11 @@ export class CopyService {
       { new: true },
     );
   }
-  async excelsReportData(query: FilterType) {
-    const reportData = await this.getReportsByFilterType(query);
+  async excelsReportData(
+    filterType: FilterType,
+    reportQueryDto: ReportQueryDto,
+  ) {
+    const reportData = await this.filterReport(filterType, reportQueryDto);
     return await this.reportExcelsService.eaToolReport(reportData);
   }
 
@@ -94,9 +106,10 @@ export class CopyService {
 
   async sendMessageToTelegram(
     filterType: FilterType,
+    reportQueryDto: ReportQueryDto,
     sendMessageTelegramDto: SendMessageTelegramDto,
   ) {
-    const reportData = await this.getReportsByFilterType(filterType);
+    const reportData = await this.filterReport(filterType, reportQueryDto);
     for (const _report of reportData) {
       if (_report.telegram && _report.telegram !== '') {
         const message = format(sendMessageTelegramDto.message, _report);
@@ -112,12 +125,14 @@ export class CopyService {
   // ***************************************************************************
   //                                 PRIVATE METHOD
   // ***************************************************************************
-  private buildQueryOptions(query: OptionsQueryDto): OptionsQuery {
-    if (!query.pageSize || query.pageSize < 0) {
+  private buildQueryOptions(
+    reportQueryOptionsDto: OptionsQueryDto,
+  ): OptionsQuery {
+    if (!reportQueryOptionsDto.pageSize || reportQueryOptionsDto.pageSize < 0) {
       return {};
     } else {
-      const page = query.page;
-      const pageSize = query.pageSize;
+      const page = reportQueryOptionsDto.page || 1;
+      const pageSize = reportQueryOptionsDto.pageSize;
       const skip = (page - 1) * pageSize;
       return {
         skip: skip,
@@ -125,17 +140,37 @@ export class CopyService {
       };
     }
   }
-  private buildQueryReport(query: ReportQueryDto): ReportQuery {
+  private buildQueryReport(
+    filterType: FilterType,
+    reportQueryDto: ReportQueryDto,
+  ): ReportQuery {
     const queryRp = {};
-    if (query.accountId) {
-      const regexAccountId = new RegExp(`.*${query.accountId}.*`, 'i');
+    if (reportQueryDto.accountId) {
+      const regexAccountId = new RegExp(`.*${reportQueryDto.accountId}.*`, 'i');
       Object.assign(queryRp, { accountId: regexAccountId });
     }
-    if (query.zalo) {
-      const regexTelegram = new RegExp(`.*${query.zalo}.*`, 'i');
-      Object.assign(queryRp, { zalo: regexTelegram });
+    switch (filterType['filterType']) {
+      case FilterType.ExpireLessThanSevenDay:
+        Object.assign(queryRp, {
+          expireDate: { $lt: moment().add(7, 'd').toDate() },
+        });
+        break;
+      case FilterType.SelfOrderOneTime:
+        Object.assign(queryRp, { selfOrder: 1 });
+        break;
+      case FilterType.SelfOrderTwoTime:
+        Object.assign(queryRp, { selfOrder: 2 });
+        break;
+      case FilterType.SelfOrderMoreThanTwoTime:
+        Object.assign(queryRp, {
+          selfOrder: { $gte: 3 },
+        });
+        break;
+      case FilterType.All:
+        break;
+      default:
+        break;
     }
-
     return queryRp;
   }
   private calcDollar(balance0: number, balance1: number) {
@@ -153,41 +188,5 @@ export class CopyService {
   }
   private calcPercent(balance0: number, balance1: number) {
     return Math.ceil((balance1 / balance0) * 100 - 100);
-  }
-  private async getReportsByFilterType(
-    filterType: FilterType,
-  ): Promise<CopyToolReport[]> {
-    let reportsData = [];
-    switch (filterType['filterType']) {
-      case FilterType.ExpireLessThanSevenDay:
-        reportsData = await this.copyToolReportModel.find({
-          expireDate: { $lt: moment().add(7, 'd').toDate() },
-        });
-        break;
-      case FilterType.SelfOrderOneTime:
-        reportsData = await this.copyToolReportModel.find({ selfOrder: 1 });
-        break;
-      case FilterType.SelfOrderTwoTime:
-        reportsData = await this.copyToolReportModel.find({ selfOrder: 2 });
-        break;
-      case FilterType.SelfOrderMoreThanTwoTime:
-        reportsData = await this.copyToolReportModel.find({
-          selfOrder: { $gte: 3 },
-        });
-        break;
-      case FilterType.All:
-        reportsData = await this.copyToolReportModel.find();
-        break;
-      default:
-        reportsData = await this.copyToolReportModel.find();
-        break;
-    }
-    reportsData = reportsData.map((item) => {
-      item['_doc']['expireDateFormat'] = moment(item.expireDate).format(
-        'DD/MM/YYYY',
-      );
-      return item;
-    });
-    return reportsData;
   }
 }
