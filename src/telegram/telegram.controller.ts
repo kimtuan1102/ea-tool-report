@@ -1,12 +1,5 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -20,12 +13,16 @@ import {
 export class TelegramController {
   constructor(private telegramService: TelegramService) {}
 
-  @Get('sync-telegram-account')
-  @UseGuards(AuthGuard('jwt'))
+  @Post('sync-telegram-account')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Sync telegram account' })
   @ApiOkResponse()
-  async syncTelegramAccount() {
-    return await this.telegramService.syncTelegramAccount();
+  async syncTelegramAccount(@Body() body) {
+    const accountId = body.message.text;
+    const telegram = body.message.chat.id;
+    return await this.telegramService.syncTelegramAccount({
+      accountId,
+      telegram,
+    });
   }
 }

@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/common';
 import { TELEGRAM_TOKEN } from '../common/const';
 import * as _ from 'lodash';
 import { CopyService } from '../copy/copy.service';
+import { SyncTelegramAccountDto } from '../copy/dto/sync-telegram-account.dto';
 @Injectable()
 export class TelegramService {
   constructor(
@@ -18,23 +19,10 @@ export class TelegramService {
       })
       .toPromise();
   }
-  async syncTelegramAccount() {
-    const chatLogs = await this.httpService
-      .get(`https://api.telegram.org/${TELEGRAM_TOKEN}/getUpdates`)
-      .toPromise();
-    let _chatLogs = chatLogs.data.result;
-    _chatLogs = _.orderBy(_chatLogs, (item) => item.message.date, ['desc']);
-    const syncTelegramsData = [];
-    for (const chatLog of _chatLogs) {
-      const chatId = chatLog.message.chat.id;
-      const accountId = chatLog.message.text;
-      if (accountId !== '/start') {
-        syncTelegramsData.push({
-          accountId: accountId,
-          telegram: chatId,
-        });
-      }
+  async syncTelegramAccount(syncTelegramDto: SyncTelegramAccountDto) {
+    if (!isNaN(parseInt(syncTelegramDto.accountId))) {
+      return await this.copyService.syncTelegramAccount(syncTelegramDto);
     }
-    return await this.copyService.syncTelegramAccount(syncTelegramsData);
+    return 'Success';
   }
 }

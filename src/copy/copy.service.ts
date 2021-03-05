@@ -124,17 +124,11 @@ export class CopyService {
     }
     return 'Success';
   }
-  async syncTelegramAccount(syncTelegramsDto: SyncTelegramAccountDto[]) {
-    const updatesQuery = [];
-    for (const telegramDto of syncTelegramsDto) {
-      updatesQuery.push({
-        updateOne: {
-          filter: { accountId: telegramDto.accountId },
-          update: { telegram: telegramDto.telegram },
-        },
-      });
-    }
-    return await this.copyToolReportModel.bulkWrite(updatesQuery);
+  async syncTelegramAccount(syncTelegramsDto: SyncTelegramAccountDto) {
+    return await this.copyToolReportModel.updateOne(
+      { accountId: syncTelegramsDto.accountId },
+      { telegram: syncTelegramsDto.telegram },
+    );
   }
   // ***************************************************************************
   //                                 PRIVATE METHOD
