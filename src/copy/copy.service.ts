@@ -134,7 +134,6 @@ export class CopyService {
         },
       });
     }
-    console.log(updatesQuery)
     return await this.copyToolReportModel.bulkWrite(updatesQuery);
   }
   // ***************************************************************************

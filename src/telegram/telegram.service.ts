@@ -23,9 +23,7 @@ export class TelegramService {
       .get(`https://api.telegram.org/${TELEGRAM_TOKEN}/getUpdates`)
       .toPromise();
     let _chatLogs = chatLogs.data.result;
-    // _chatLogs = _.orderBy(_chatLogs, (item) => item.message.date, ['desc']);
     _chatLogs = _.orderBy(_chatLogs, (item) => item.message.date, ['desc']);
-    console.log(_chatLogs)
     const syncTelegramsData = [];
     for (const chatLog of _chatLogs) {
       const chatId = chatLog.message.chat.id;
