@@ -18,7 +18,6 @@ export class TelegramController {
   @ApiOperation({ description: 'Sync telegram account' })
   @ApiOkResponse()
   async syncTelegramAccount(@Body() body) {
-    console.log(body)
     const accountId = body.message.text;
     const telegram = body.message.chat.id;
     return await this.telegramService.syncTelegramAccount({
