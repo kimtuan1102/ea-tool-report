@@ -80,7 +80,7 @@ export class UserService {
   private async findUserByEmail(email: string): Promise<User> {
     const user = await this.userModel.findOne({ email, verified: true });
     if (!user) {
-      throw new NotFoundException('Wrong email or password.');
+      throw new NotFoundException({ type: 'accountDoesNotExist' });
     }
     return user;
   }
@@ -94,7 +94,6 @@ export class UserService {
     const match = await bcrypt.compare(attemptPass, user.password);
     if (!match) {
       await this.passwordsDoNotMatch(user);
-      throw new NotFoundException('Wrong email or password.');
     }
     return match;
   }
@@ -104,7 +103,12 @@ export class UserService {
     await user.save();
     if (user.loginAttempts >= this.LOGIN_ATTEMPTS_TO_BLOCK) {
       await this.blockUser(user);
-      throw new ConflictException('User blocked.');
+      throw new ConflictException({ type: 'userBlocked' });
+    } else {
+      throw new NotFoundException({
+        type: 'wrongPassword',
+        loginAttempts: user.loginAttempts,
+      });
     }
   }
 
