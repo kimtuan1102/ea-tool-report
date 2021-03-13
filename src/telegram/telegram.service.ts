@@ -22,6 +22,10 @@ export class TelegramService {
     if (!isNaN(parseInt(syncTelegramDto.accountId))) {
       return await this.copyService.syncTelegramAccount(syncTelegramDto);
     }
+    await this.sendMessage(
+      syncTelegramDto.telegram,
+      'Cảm ơn bạn, Tài khoản telegram của bạn đã được cập nhật',
+    );
     return 'Success';
   }
 }
