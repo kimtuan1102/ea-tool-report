@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/common';
 import { TELEGRAM_TOKEN } from '../common/const';
-import * as _ from 'lodash';
 import { CopyService } from '../copy/copy.service';
 import { SyncTelegramAccountDto } from '../copy/dto/sync-telegram-account.dto';
 @Injectable()
