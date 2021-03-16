@@ -119,7 +119,7 @@ export class UserService {
 
   private static isUserBlocked(user) {
     if (user.blockExpires > Date.now()) {
-      throw new ConflictException('User has been blocked try later.');
+      throw new ConflictException({ type: 'userBlocked' });
     }
   }
 
